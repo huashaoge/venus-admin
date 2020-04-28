@@ -2,16 +2,13 @@ package com.venus.admin.security;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * @Author: tcg
@@ -29,15 +26,18 @@ public class VenusUserDetailServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("username: " + username);
         // TODO 查询数据库
-        if (!"admin".equals(username)) {
-            throw new UsernameNotFoundException("the user is not fund");
-        } else {
-            // TODO 用户角色数据库查询
-            String role = "ROLE_ADMIN";
-            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority(role));
-            String pwd = passwordEncoder.encode("123456");
-            return new User(username, pwd, authorities);
-        }
+        VenusUserDetails userDetails = new VenusUserDetails();
+        userDetails.setUserId(1L);
+        userDetails.setUsername(username);
+        userDetails.setPassword(passwordEncoder.encode("123456"));
+        userDetails.setNickName("huashaoge");
+        userDetails.setAuthorities(Collections.emptyList());
+        userDetails.setAvatar("http://bpic.588ku.com/element_pic/18/05/21/2f03f76d187939a415c668c5ef70d380.jpg");
+        userDetails.setAccountNonLocked(true);
+        userDetails.setAccountNonExpired(true);
+        userDetails.setCredentialsNonExpired(true);
+        userDetails.setEnabled(true);
+        userDetails.setRoles(new String[]{"admin","editor"});
+        return userDetails;
     }
 }

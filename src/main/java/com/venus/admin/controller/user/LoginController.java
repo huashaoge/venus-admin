@@ -1,13 +1,14 @@
 package com.venus.admin.controller.user;
 
 import com.venus.admin.common.model.ResultBody;
-import com.venus.admin.model.JwtToken;
-import com.venus.admin.model.User;
-import com.venus.admin.model.UserAndPassword;
+import com.venus.admin.security.VenusUserDetails;
+import com.venus.admin.utils.BeanConvertUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
@@ -15,6 +16,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.NoSuchClientException;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,31 +37,49 @@ import java.util.Map;
 public class LoginController {
 
     @Autowired
-    AuthorizationServerEndpointsConfiguration endpoints;
+    private AuthorizationServerEndpointsConfiguration endpoints;
 
     @Autowired
-    ClientDetailsService clientDetailsService;
+    private ClientDetailsService clientDetailsService;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TokenStore tokenStore;
+
+    /**
+     * 获取登录token
+     * @param username
+     * @param password
+     * @return
+     * @throws Exception
+     */
     @PostMapping("/login/token")
-    public ResultBody<OAuth2AccessToken> login2(@RequestParam String username, @RequestParam String password) throws Exception {
+    public ResultBody<OAuth2AccessToken> login(@RequestParam String username, @RequestParam String password) throws Exception {
         OAuth2AccessToken result = getToken(username, password);
         return ResultBody.success().data(result).msg("登录成功");
     }
 
 
-
-    @GetMapping("/info")
-    public ResultBody<User> GetUserInfo(){
-        User user = new User();
-        user.setRoles(new String[]{"admin","editor"});
-        return ResultBody.success().data(user).msg("信息获取成功");
+    @GetMapping("/current/user")
+    public ResultBody getUserProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && authentication instanceof OAuth2Authentication) {
+            if (authentication.getPrincipal() instanceof VenusUserDetails) {
+                return ResultBody.success().data(authentication.getPrincipal());
+            }
+            if (authentication.getPrincipal() instanceof Map) {
+                return ResultBody.success().data(BeanConvertUtils.mapToObject((Map)authentication.getPrincipal(), VenusUserDetails.class));
+            }
+        }
+        return ResultBody.fail();
     }
 
-    @PostMapping("/logout")
-    public ResultBody logout(){
+
+    @PostMapping("/logout/token")
+    public ResultBody removeToken(@RequestParam String token){
+        tokenStore.removeAccessToken(tokenStore.readAccessToken(token));
         return ResultBody.success();
     }
 

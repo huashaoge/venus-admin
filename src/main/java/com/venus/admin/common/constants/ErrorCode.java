@@ -16,7 +16,11 @@ public enum ErrorCode {
     /**
      * 非500对应，自定义错误码700开始
      */
-    FAIL(70000,"FAIL")
+    FAIL(70000,"FAIL"),
+
+    UNAUTHORIZED(40100,"UNAUTHORIZED")
+
+
     ;
 
     private int code;
