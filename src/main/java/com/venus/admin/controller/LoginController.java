@@ -1,4 +1,4 @@
-package com.venus.admin.controller.user;
+package com.venus.admin.controller;
 
 import com.venus.admin.common.model.ResultBody;
 import com.venus.admin.security.VenusUserDetails;

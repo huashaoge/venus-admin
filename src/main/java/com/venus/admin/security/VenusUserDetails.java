@@ -74,6 +74,16 @@ public class VenusUserDetails implements UserDetails {
     private String nickName;
 
     /**
+     * 账户Id
+     */
+    private Long accountId;
+
+    /***
+     * 账户类型
+     */
+    private String accountType;
+
+    /**
      * 用户附加属性
      */
     private Map<String, Object> attrs;
@@ -193,5 +203,21 @@ public class VenusUserDetails implements UserDetails {
 
     public void setRoles(String[] roles) {
         this.roles = roles;
+    }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
+    }
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
     }
 }

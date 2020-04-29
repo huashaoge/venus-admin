@@ -1,5 +1,6 @@
 package com.venus.admin;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -8,6 +9,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
  * @author TCG
  */
 @SpringBootApplication
+@MapperScan(basePackages = "com.venus.admin.mapper")
 public class AdminApplication {
 
     public static void main(String[] args) {
