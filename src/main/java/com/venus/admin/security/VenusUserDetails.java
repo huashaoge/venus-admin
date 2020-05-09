@@ -93,6 +93,18 @@ public class VenusUserDetails implements UserDetails {
      */
     private String[] roles;
 
+    /**
+     * 认证客户端ID
+     */
+    private String clientId;
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

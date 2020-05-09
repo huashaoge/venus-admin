@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.venus.admin.mapper.BaseAuthorityMapper">
+    <resultMap id="BaseResultMap" type="com.venus.admin.model.entity.BaseAuthority">
+        <id column="authority_id" property="authorityId" jdbcType="BIGINT"/>
+        <result column="authority" property="authority" jdbcType="VARCHAR"/>
+        <result column="menu_id"  property="menuId" jdbcType="BIGINT"/>
+        <result column="api_id" property="apiId" jdbcType="BIGINT"/>
+        <result column="action_id" property="actionId" jdbcType="BIGINT"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+    </resultMap>
+
+   <resultMap id="AuthorityMenu" type="com.venus.admin.model.AuthorityMenu" extends="com.venus.admin.mapper.BaseMenuMapper.BaseResultMap">
+       <result column="authority_id" jdbcType="BIGINT" property="authorityId"/>
+       <result column="authority" jdbcType="VARCHAR" property="authority"/>
+       <collection property="actionList" column="{menuId=menu_id,status=status}" select="selectAuthorityAction"/>
+   </resultMap>
+
+    <resultMap id="AuthorityAction" type="com.venus.admin.model.AuthorityAction" extends="com.venus.admin.mapper.BaseActionMapper.BaseResultMap">
+        <result column="authority_id" property="authorityId" jdbcType="BIGINT"/>
+        <result column="authority" property="authority" jdbcType="VARCHAR"/>
+        <result column="service_id" property="serviceId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="selectAuthorityMenu" resultMap="AuthorityMenu">
+        SELECT
+        a.authority_id,
+        a.authority,
+        m.*
+        FROM
+        base_authority a , base_menu m WHERE
+        a.menu_id = m.menu_id
+        <if test="status!=null">
+            AND m.status = #{status}
+        </if>
+    </select>
+
+    <select id="selectAuthorityAction" resultMap="AuthorityAction">
+        SELECT
+        a.authority_id,
+        a.authority,
+        o.service_id
+        FROM
+        base_authority AS a
+        INNER JOIN base_action AS o ON a.action_id = o.action_id
+        <where>
+            <if test="status!=null">
+                AND o.status = #{status}
+            </if>
+        </where>
+    </select>
+</mapper>

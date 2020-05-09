@@ -1,5 +1,6 @@
 package com.venus.admin.controller;
 
+import com.google.common.collect.Maps;
 import com.venus.admin.common.model.ResultBody;
 import com.venus.admin.security.VenusUserDetails;
 import com.venus.admin.utils.BeanConvertUtils;
@@ -62,21 +63,6 @@ public class LoginController {
     }
 
 
-    @GetMapping("/current/user")
-    public ResultBody getUserProfile() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() && authentication instanceof OAuth2Authentication) {
-            if (authentication.getPrincipal() instanceof VenusUserDetails) {
-                return ResultBody.success().data(authentication.getPrincipal());
-            }
-            if (authentication.getPrincipal() instanceof Map) {
-                return ResultBody.success().data(BeanConvertUtils.mapToObject((Map)authentication.getPrincipal(), VenusUserDetails.class));
-            }
-        }
-        return ResultBody.fail();
-    }
-
-
     @PostMapping("/logout/token")
     public ResultBody removeToken(@RequestParam String token){
         tokenStore.removeAccessToken(tokenStore.readAccessToken(token));
@@ -90,7 +76,7 @@ public class LoginController {
      * @return
      */
     private OAuth2AccessToken getToken(String username, String password) throws Exception {
-        Map<String,String> postParams = new HashMap<>();
+        Map<String,String> postParams = Maps.newHashMap();
         postParams.put("username", username);
         postParams.put("password", password);
         postParams.put("client_id", "admin");

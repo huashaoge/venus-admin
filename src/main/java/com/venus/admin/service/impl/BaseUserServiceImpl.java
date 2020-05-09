@@ -64,8 +64,9 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUser> i
 
         BaseUser baseUser = this.getById(userId);
         // 加入用户权限
-        VenusAuthority authorityUser = new VenusAuthority("1","MENU_system",null,"role");
+        VenusAuthority authorityUser = new VenusAuthority("1","MENU_system",null,"user");
         authorities.add(authorityUser);
+
 
 
         UserAccount userAccount = new UserAccount();
