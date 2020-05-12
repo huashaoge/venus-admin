@@ -26,3 +26,6 @@ management:
   endpoint:
     health:
       enabled: true
+logging:
+  level:
+    com.venus.admin.mapper : debug

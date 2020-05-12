@@ -56,7 +56,6 @@ public class VenusUserDetailServiceImpl implements UserDetailsService {
         userDetails.setAccountNonExpired(accountNonExpired);
         userDetails.setCredentialsNonExpired(credentialsNonExpired);
         userDetails.setEnabled(enabled);
-        userDetails.setRoles(new String[]{"admin","editor"});
         return userDetails;
     }
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.venus.admin.model.AuthorityAction;
 import com.venus.admin.model.AuthorityMenu;
 import com.venus.admin.model.entity.BaseAuthority;
+import com.venus.admin.security.VenusAuthority;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,4 +30,11 @@ public interface BaseAuthorityMapper extends BaseMapper<BaseAuthority> {
      * @return
      */
     List<AuthorityAction> selectAuthorityAction(Map map);
+
+    /**
+     * 查询已授权权限列表
+     * @param map
+     * @return
+     */
+    List<VenusAuthority> selectAuthorityAll(Map map);
 }

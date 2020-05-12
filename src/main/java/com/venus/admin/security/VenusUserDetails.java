@@ -88,10 +88,6 @@ public class VenusUserDetails implements UserDetails {
      */
     private Map<String, Object> attrs;
 
-    /**
-     * 测试用
-     */
-    private String[] roles;
 
     /**
      * 认证客户端ID
@@ -209,13 +205,6 @@ public class VenusUserDetails implements UserDetails {
         this.enabled = enabled;
     }
 
-    public String[] getRoles() {
-        return roles;
-    }
-
-    public void setRoles(String[] roles) {
-        this.roles = roles;
-    }
 
     public Long getAccountId() {
         return accountId;

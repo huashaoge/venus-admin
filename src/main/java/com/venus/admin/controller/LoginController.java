@@ -82,8 +82,6 @@ public class LoginController {
         postParams.put("client_id", "admin");
         postParams.put("client_secret", "123456");
         postParams.put("grant_type", "password");
-        // 配置或者数据库 TODO
-
         ClientDetails clientDetails = clientDetailsService.loadClientByClientId("admin");
         if (clientDetails == null) {
             throw new NoSuchClientException("No client with requested id");

@@ -6,9 +6,12 @@ import com.google.common.collect.Maps;
 import com.venus.admin.mapper.BaseUserMapper;
 import com.venus.admin.model.UserAccount;
 import com.venus.admin.model.entity.BaseAccount;
+import com.venus.admin.model.entity.BaseRole;
 import com.venus.admin.model.entity.BaseUser;
 import com.venus.admin.security.VenusAuthority;
 import com.venus.admin.service.BaseAccountService;
+import com.venus.admin.service.BaseAuthorityService;
+import com.venus.admin.service.BaseRoleService;
 import com.venus.admin.service.BaseUserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,17 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUser> i
     @Autowired
     private BaseAccountService baseAccountService;
 
+    @Autowired
+    private BaseRoleService roleService;
+
+    @Autowired
+    private BaseAuthorityService baseAuthorityService;
+
+    /**
+     * 默认超级管理员账号
+     */
+    public final static String ROOT = "admin";
+
     @Override
     public UserAccount login(String account) {
         if (StringUtils.isEmpty(account)) {
@@ -49,25 +63,28 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUser> i
         List<VenusAuthority> authorities = Lists.newArrayList();
         // 用户角色列表
         List<Map> roles = Lists.newArrayList();
-        // TODO 数据库查询角色
-        // BaseUserRole 表查询 用户角色 循环插入角色详情与标志
-        Map roleMap = Maps.newHashMap();
-        roleMap.put("roleId", "1");
-        roleMap.put("roleCode","admin");
-        roleMap.put("roleName", "系统管理员");
-        // 角色详情
-        roles.add(roleMap);
-        // 加入角色标志
-        VenusAuthority authorityRole = new VenusAuthority("1","ROLE_admin",null,"role");
-        authorities.add(authorityRole);
-
+        // 数据库查询角色
+        List<BaseRole> roleList = roleService.getUserRoles(userId);
+        if (roleList != null && roleList.size() > 0) {
+            for (BaseRole role : roleList) {
+                Map roleMap = Maps.newHashMap();
+                roleMap.put("roleId", role.getRoleId());
+                roleMap.put("roleCode",role.getRoleCode());
+                roleMap.put("roleName", role.getRoleName());
+                // 角色详情
+                roles.add(roleMap);
+                // 加入角色标志
+                VenusAuthority authority = new VenusAuthority(role.getRoleId().toString(),"ROLE_" + role.getRoleCode(),null,"role");
+                authorities.add(authority);
+            }
+        }
 
         BaseUser baseUser = this.getById(userId);
         // 加入用户权限
-        VenusAuthority authorityUser = new VenusAuthority("1","MENU_system",null,"user");
-        authorities.add(authorityUser);
-
-
+        List<VenusAuthority> userGrantedAuthorities = baseAuthorityService.findAuthorityByUser(userId,ROOT.equals(baseUser.getUserName()));
+        if (userGrantedAuthorities != null && userGrantedAuthorities.size() > 0) {
+            authorities.addAll(userGrantedAuthorities);
+        }
 
         UserAccount userAccount = new UserAccount();
         userAccount.setNickName(baseUser.getNickName());

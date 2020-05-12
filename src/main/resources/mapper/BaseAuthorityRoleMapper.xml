@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.venus.admin.mapper.BaseAuthorityRoleMapper">
+    <resultMap id="BaseResultMap" type="com.venus.admin.model.entity.BaseAuthorityRole">
+        <result column="authority_id" property="authorityId" jdbcType="BIGINT"/>
+        <result column="role_id" property="roleId" jdbcType="BIGINT"/>
+        <result column="expire_time" property="expireTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <resultMap id="RoleAuthorityMenu" type="com.venus.admin.model.AuthorityMenu"
+               extends="com.venus.admin.mapper.BaseMenuMapper.BaseResultMap">
+        <result column="authority_id" property="authorityId" jdbcType="BIGINT"/>
+        <result column="authority" property="authority" jdbcType="VARCHAR"/>
+        <collection property="actionList" column="{menuId=menu_id, roleId=role_id}"
+                    select="com.venus.admin.mapper.BaseAuthorityMapper.selectAuthorityAction"/>
+    </resultMap>
+    <select id="selectAuthorityMenuByRole" resultMap="RoleAuthorityMenu">
+        SELECT
+          a.authority_id,
+          a.authority,
+          a.`status`,
+          m.*,
+          rp.role_id,
+          rp.expire_time
+        FROM
+          base_authority_role AS rp
+          INNER JOIN base_authority AS a ON rp.authority_id = a.authority_id
+          INNER JOIN base_menu AS m ON a.menu_id = m.menu_id
+        WHERE rp.role_id = #{roleId}
+          AND a.status = 1
+    </select>
+    <select id="selectAuthorityByRole" resultMap="com.venus.admin.mapper.BaseAuthorityMapper.Authority">
+        SELECT
+          a.authority_id,
+          a.authority,
+          rp.expire_time,
+          'role' AS owner
+        FROM
+          base_authority_role AS rp
+          INNER JOIN base_authority AS a ON rp.authority_id = a.authority_id
+        WHERE
+          rp.role_id = #{roleId}
+          AND a.status = 1
+    </select>
+</mapper>

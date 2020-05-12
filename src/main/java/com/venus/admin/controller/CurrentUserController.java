@@ -3,18 +3,12 @@ package com.venus.admin.controller;
 import com.venus.admin.common.model.ResultBody;
 import com.venus.admin.model.AuthorityMenu;
 import com.venus.admin.security.VenusHelper;
-import com.venus.admin.security.VenusUserDetails;
 import com.venus.admin.service.BaseAuthorityService;
-import com.venus.admin.utils.BeanConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 登录用户信息控制
@@ -24,6 +18,11 @@ import java.util.Map;
  */
 @RestController
 public class CurrentUserController {
+
+    /**
+     * 默认超级管理员账号
+     */
+    public final static String ROOT = "admin";
 
     @Autowired
     private BaseAuthorityService baseAuthorityService;
@@ -40,7 +39,7 @@ public class CurrentUserController {
     @GetMapping("/current/user/menus")
     public ResultBody<List<AuthorityMenu>> findAuthorityMenu() {
         // false 非admin 管理账户 管理账户直接授权
-        List<AuthorityMenu> result = baseAuthorityService.findAuthorityMenuByUser(VenusHelper.getUser().getUserId(),true);
+        List<AuthorityMenu> result = baseAuthorityService.findAuthorityMenuByUser(VenusHelper.getUser().getUserId(),ROOT.equals(VenusHelper.getUser().getUsername()));
         return ResultBody.success().data(result);
     }
 

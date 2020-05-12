@@ -3,7 +3,7 @@ package com.venus.admin.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.venus.admin.model.AuthorityMenu;
 import com.venus.admin.model.entity.BaseAuthority;
-import org.springframework.stereotype.Service;
+import com.venus.admin.security.VenusAuthority;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public interface BaseAuthorityService extends IService<BaseAuthority> {
      * @param root
      * @return
      */
-    List<AuthorityMenu> findAuthorityMenuByUser(Long userId, boolean root);
+    List<AuthorityMenu> findAuthorityMenuByUser(Long userId, Boolean root);
 
     /**
      * 获取菜单权限列表
@@ -28,4 +28,26 @@ public interface BaseAuthorityService extends IService<BaseAuthority> {
      * @return
      */
     List<AuthorityMenu> findAuthorityMenu(Integer status);
+
+    /**
+     *  获取用户已授权权限
+     * @param userId
+     * @param root
+     * @return
+     */
+    List<VenusAuthority> findAuthorityByUser(Long userId, Boolean root);
+
+    /**
+     * 获取所有可用权限
+     * @param type
+     * @return
+     */
+    List<VenusAuthority> findAuthorityByType(String type);
+
+    /**
+     * 获取角色已授权权限
+     * @param roleId
+     * @return
+     */
+    List<VenusAuthority> findAuthorityByRole(Long roleId);
 }

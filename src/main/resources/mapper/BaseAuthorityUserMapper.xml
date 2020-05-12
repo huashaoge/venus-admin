@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.venus.admin.mapper.BaseAuthorityUserMapper">
+    <resultMap id="BaseResultMap" type="com.venus.admin.model.entity.BaseAuthorityUser">
+        <result column="authority_id" property="authorityId" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="expire_time" property="expireTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="UserAuthorityMenu" type="com.venus.admin.model.AuthorityMenu"
+               extends="com.venus.admin.mapper.BaseMenuMapper.BaseResultMap">
+        <result column="authority_id" property="authorityId" jdbcType="BIGINT"/>
+        <result column="authority" property="authority" jdbcType="VARCHAR"/>
+        <collection property="actionList" column="{menuId=menu_id,userId=user_id}"
+                    select="com.venus.admin.mapper.BaseAuthorityMapper.selectAuthorityAction"/>
+    </resultMap>
+
+    <select id="selectAuthorityMenuByUser" resultMap="UserAuthorityMenu">
+        SELECT
+          a.authority_id,
+          a.authority,
+          a.`status`,
+          m.*,
+          ua.user_id,
+          ua.expire_time
+        FROM
+          base_authority_user AS ua
+          INNER JOIN base_authority AS a ON ua.authority_id = a.authority_id
+          INNER JOIN base_menu AS m ON m.menu_id = a.menu_id
+        WHERE
+          ua.user_id = #{userId}
+          AND a.status = 1
+    </select>
+    <select id="selectAuthorityByUser" resultMap="com.venus.admin.mapper.BaseAuthorityMapper.Authority">
+        SELECT
+          a.authority_id,
+          a.authority,
+          up.expire_time,
+          'user' AS owner
+        FROM
+          base_authority_user AS up
+            INNER JOIN base_authority AS a ON up.authority_id = a.authority_id
+        WHERE
+          up.user_id = #{userId}
+          AND a.status = 1
+    </select>
+</mapper>
