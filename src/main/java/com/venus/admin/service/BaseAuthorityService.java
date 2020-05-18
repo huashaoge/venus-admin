@@ -1,6 +1,7 @@
 package com.venus.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.venus.admin.common.constants.ResourceType;
 import com.venus.admin.model.AuthorityMenu;
 import com.venus.admin.model.entity.BaseAuthority;
 import com.venus.admin.security.VenusAuthority;
@@ -50,4 +51,25 @@ public interface BaseAuthorityService extends IService<BaseAuthority> {
      * @return
      */
     List<VenusAuthority> findAuthorityByRole(Long roleId);
+
+    /**
+     * 移除权限
+     * @param resourceId
+     * @param resourceType
+     */
+    void removeAuthority(Long resourceId, ResourceType resourceType);
+
+    /**
+     * 获取权限
+     * @param resourceId
+     * @param resourceType
+     * @return
+     */
+    BaseAuthority getAuthority(Long resourceId, ResourceType resourceType);
+
+    /**
+     * 移除功能按钮权限
+     * @param actionId
+     */
+    void removeAuthorityAction(Long actionId);
 }

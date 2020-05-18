@@ -13,6 +13,7 @@ import com.venus.admin.service.BaseAccountService;
 import com.venus.admin.service.BaseAuthorityService;
 import com.venus.admin.service.BaseRoleService;
 import com.venus.admin.service.BaseUserService;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,7 +66,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUser> i
         List<Map> roles = Lists.newArrayList();
         // 数据库查询角色
         List<BaseRole> roleList = roleService.getUserRoles(userId);
-        if (roleList != null && roleList.size() > 0) {
+        if (CollectionUtils.isNotEmpty(roleList)) {
             for (BaseRole role : roleList) {
                 Map roleMap = Maps.newHashMap();
                 roleMap.put("roleId", role.getRoleId());
@@ -82,7 +83,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUser> i
         BaseUser baseUser = this.getById(userId);
         // 加入用户权限
         List<VenusAuthority> userGrantedAuthorities = baseAuthorityService.findAuthorityByUser(userId,ROOT.equals(baseUser.getUserName()));
-        if (userGrantedAuthorities != null && userGrantedAuthorities.size() > 0) {
+        if (CollectionUtils.isNotEmpty(userGrantedAuthorities)) {
             authorities.addAll(userGrantedAuthorities);
         }
 

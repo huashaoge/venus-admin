@@ -2,7 +2,6 @@ package com.venus.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.venus.admin.model.entity.BaseMenu;
-import org.springframework.stereotype.Service;
 
 /**
  * @Author: tcg
@@ -11,4 +10,9 @@ import org.springframework.stereotype.Service;
  */
 
 public interface BaseMenuService extends IService<BaseMenu> {
+    /**
+     * 移除菜单
+     * @param menuId
+     */
+    void deleteMenu(Long menuId);
 }

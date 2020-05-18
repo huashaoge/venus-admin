@@ -42,6 +42,12 @@ public class VenusGlobalExceptionHandler {
         return ResultBody.fail().msg("用户名或密码不正确").httpStatus(HttpStatus.UNAUTHORIZED.value());
     }
 
+    @ExceptionHandler({VenusAlertException.class})
+    public static ResultBody venusAlertException(Exception e, HttpServletRequest request, HttpServletResponse response) {
+        log.info("错误 {}",e.getStackTrace());
+        log.info(e.getLocalizedMessage());
+        return ResultBody.fail().code(ErrorCode.ALERT.getCode()).msg(e.getMessage());
+    }
 
     @ExceptionHandler({Exception.class})
     public static ResultBody defaultException(Exception e, HttpServletRequest request, HttpServletResponse response) {

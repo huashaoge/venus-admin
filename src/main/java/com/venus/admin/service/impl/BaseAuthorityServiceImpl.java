@@ -1,18 +1,21 @@
 package com.venus.admin.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.venus.admin.common.constants.ResourceType;
+import com.venus.admin.exception.VenusAlertException;
+import com.venus.admin.mapper.BaseAuthorityActionMapper;
 import com.venus.admin.mapper.BaseAuthorityMapper;
 import com.venus.admin.mapper.BaseAuthorityRoleMapper;
 import com.venus.admin.mapper.BaseAuthorityUserMapper;
 import com.venus.admin.model.AuthorityMenu;
-import com.venus.admin.model.entity.BaseAuthority;
-import com.venus.admin.model.entity.BaseMenu;
-import com.venus.admin.model.entity.BaseRole;
+import com.venus.admin.model.entity.*;
 import com.venus.admin.security.VenusAuthority;
 import com.venus.admin.service.BaseAuthorityService;
 import com.venus.admin.service.BaseRoleService;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +44,9 @@ public class BaseAuthorityServiceImpl extends ServiceImpl<BaseAuthorityMapper, B
     @Autowired
     private BaseAuthorityUserMapper baseAuthorityUserMapper;
 
+    @Autowired
+    private BaseAuthorityActionMapper baseAuthorityActionMapper;
+
     @Override
     public List<AuthorityMenu> findAuthorityMenuByUser(Long userId, Boolean root) {
         if (root) {
@@ -51,18 +57,18 @@ public class BaseAuthorityServiceImpl extends ServiceImpl<BaseAuthorityMapper, B
         List<AuthorityMenu> authorities = Lists.newArrayList();
         // 角色列表
         List<BaseRole> rolesList = baseRoleService.getUserRoles(userId);
-        if (rolesList != null && rolesList.size() > 0) {
+        if (CollectionUtils.isNotEmpty(rolesList)) {
             for (BaseRole role : rolesList) {
                 // 角色授权目录
                 List<AuthorityMenu> roleGrantedAuthorities = baseAuthorityRoleMapper.selectAuthorityMenuByRole(role.getRoleId());
-                if (roleGrantedAuthorities != null && roleGrantedAuthorities.size() > 0) {
+                if (CollectionUtils.isNotEmpty(roleGrantedAuthorities)) {
                     authorities.addAll(roleGrantedAuthorities);
                 }
             }
         }
         // 加入用户特殊授权
         List<AuthorityMenu> userGrantedAuthorities = baseAuthorityUserMapper.selectAuthorityMenuByUser(userId);
-        if (userGrantedAuthorities != null && userGrantedAuthorities.size() > 0) {
+        if (CollectionUtils.isNotEmpty(userGrantedAuthorities)) {
             authorities.addAll(userGrantedAuthorities);
         }
         // 权限去重
@@ -88,18 +94,18 @@ public class BaseAuthorityServiceImpl extends ServiceImpl<BaseAuthorityMapper, B
         }
         List<VenusAuthority> authorities = Lists.newArrayList();
         List<BaseRole> rolesList = baseRoleService.getUserRoles(userId);
-        if (rolesList != null && rolesList.size() > 0) {
+        if (CollectionUtils.isNotEmpty(rolesList)) {
             for (BaseRole role : rolesList) {
                 // 加入角色已授权
                 List<VenusAuthority> roleGrantedAuthorities = findAuthorityByRole(role.getRoleId());
-                if (roleGrantedAuthorities != null && roleGrantedAuthorities.size() > 0) {
+                if (CollectionUtils.isNotEmpty(roleGrantedAuthorities)) {
                     authorities.addAll(roleGrantedAuthorities);
                 }
             }
         }
         // 用户特殊权限
         List<VenusAuthority> userGrantedAuthorities = baseAuthorityUserMapper.selectAuthorityByUser(userId);
-        if (userGrantedAuthorities != null && userGrantedAuthorities.size() > 0) {
+        if (CollectionUtils.isNotEmpty(userGrantedAuthorities)) {
             authorities.addAll(userGrantedAuthorities);
         }
         // 权限去重
@@ -123,5 +129,68 @@ public class BaseAuthorityServiceImpl extends ServiceImpl<BaseAuthorityMapper, B
     @Override
     public List<VenusAuthority> findAuthorityByRole(Long roleId) {
         return baseAuthorityRoleMapper.selectAuthorityByRole(roleId);
+    }
+
+    @Override
+    public void removeAuthority(Long resourceId, ResourceType resourceType) {
+        if (isGranted(resourceId, resourceType)) {
+            throw new VenusAlertException(String.format("资源已被授权，不允许删除！取消授权后，再次尝试！"));
+        }
+        QueryWrapper<BaseAuthority> queryWrapper = buildQueryWrapper(resourceId, resourceType);
+        baseAuthorityMapper.delete(queryWrapper);
+    }
+
+    /**
+     * 构建权限对象
+     * @param resourceId
+     * @param resourceType
+     * @return
+     */
+    private QueryWrapper<BaseAuthority> buildQueryWrapper(Long resourceId, ResourceType resourceType) {
+        QueryWrapper<BaseAuthority> queryWrapper = new QueryWrapper();
+        if (ResourceType.MENU.equals(resourceType)) {
+            queryWrapper.lambda().eq(BaseAuthority::getMenuId, resourceId);
+        }
+        if (ResourceType.ACTION.equals(resourceType)) {
+            queryWrapper.lambda().eq(BaseAuthority::getActionId, resourceId);
+        }
+        return queryWrapper;
+    }
+
+    /**
+     * 是否已被授权
+     * @param resourceId
+     * @param resourceType
+     * @return
+     */
+    public Boolean isGranted(Long resourceId, ResourceType resourceType) {
+        BaseAuthority authority = getAuthority(resourceId, resourceType);
+        if (authority == null || authority.getAuthorityId() == null) {
+            return false;
+        }
+
+        QueryWrapper<BaseAuthorityRole> roleQueryWrapper = new QueryWrapper();
+        roleQueryWrapper.lambda().eq(BaseAuthorityRole::getAuthorityId, authority.getAuthorityId());
+        int roleGrantedCount = baseAuthorityRoleMapper.selectCount(roleQueryWrapper);
+        QueryWrapper<BaseAuthorityUser> userQueryWrapper = new QueryWrapper();
+        userQueryWrapper.lambda().eq(BaseAuthorityUser::getAuthorityId, authority.getAuthorityId());
+        int userGrantedCount = baseAuthorityUserMapper.selectCount(userQueryWrapper);
+        return roleGrantedCount > 0 || userGrantedCount > 0;
+    }
+
+    @Override
+    public BaseAuthority getAuthority(Long resourceId, ResourceType resourceType) {
+        if (resourceId == null || resourceType == null) {
+            return null;
+        }
+        QueryWrapper<BaseAuthority> queryWrapper = buildQueryWrapper(resourceId, resourceType);
+        return baseAuthorityMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public void removeAuthorityAction(Long actionId) {
+        QueryWrapper<BaseAuthorityAction> queryWrapper = new QueryWrapper();
+        queryWrapper.lambda().eq(BaseAuthorityAction::getActionId, actionId);
+        baseAuthorityActionMapper.delete(queryWrapper);
     }
 }

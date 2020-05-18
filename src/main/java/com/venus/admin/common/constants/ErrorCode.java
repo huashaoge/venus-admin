@@ -13,6 +13,7 @@ public enum ErrorCode {
      * 系统内部错误
      */
     ERROR(50000,"ERROR"),
+    ALERT(50001,"ALERT"),
     /**
      * 非500对应，自定义错误码700开始
      */

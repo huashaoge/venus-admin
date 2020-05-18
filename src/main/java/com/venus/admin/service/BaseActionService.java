@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.venus.admin.model.entity.BaseAction;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @Author: tcg
  * @Date: 2020/5/6 16:27
@@ -11,4 +13,25 @@ import org.springframework.stereotype.Service;
  */
 
 public interface BaseActionService extends IService<BaseAction> {
+
+    /**
+     * 移除相关按钮功能
+     * @param menuId
+     */
+    void removeByMenuId(Long menuId);
+
+    /**
+     * 移除Action
+     * @param actionId
+     */
+    void removeAction(Long actionId);
+
+    BaseAction getAction(Long actionId);
+
+    /**
+     * 查询菜单下所有操作
+     * @param menuId
+     * @return
+     */
+    List<BaseAction> findListByMenuId(Long menuId);
 }
