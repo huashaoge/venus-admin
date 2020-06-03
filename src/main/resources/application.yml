@@ -2,7 +2,7 @@ server:
   port: 8080
 spring:
   application:
-    name: admin-server
+    name: venus-admin
   redis:
     host: 10.8.18.17
     port: 6379

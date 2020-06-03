@@ -72,4 +72,12 @@ public interface BaseAuthorityService extends IService<BaseAuthority> {
      * @param actionId
      */
     void removeAuthorityAction(Long actionId);
+
+    /**
+     * 保存或修改权限
+     * @param resourceId
+     * @param resourceType
+     * @return
+     */
+    BaseAuthority saveOrUpdateAuthority(Long resourceId, ResourceType resourceType);
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.venus.admin.common.constants.BaseConstants;
 import com.venus.admin.common.constants.ResourceType;
 import com.venus.admin.exception.VenusAlertException;
 import com.venus.admin.mapper.BaseAuthorityActionMapper;
@@ -14,12 +15,14 @@ import com.venus.admin.model.AuthorityMenu;
 import com.venus.admin.model.entity.*;
 import com.venus.admin.security.VenusAuthority;
 import com.venus.admin.service.BaseAuthorityService;
+import com.venus.admin.service.BaseMenuService;
 import com.venus.admin.service.BaseRoleService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,6 +49,9 @@ public class BaseAuthorityServiceImpl extends ServiceImpl<BaseAuthorityMapper, B
 
     @Autowired
     private BaseAuthorityActionMapper baseAuthorityActionMapper;
+
+    @Autowired
+    private BaseMenuService baseMenuService;
 
     @Override
     public List<AuthorityMenu> findAuthorityMenuByUser(Long userId, Boolean root) {
@@ -192,5 +198,36 @@ public class BaseAuthorityServiceImpl extends ServiceImpl<BaseAuthorityMapper, B
         QueryWrapper<BaseAuthorityAction> queryWrapper = new QueryWrapper();
         queryWrapper.lambda().eq(BaseAuthorityAction::getActionId, actionId);
         baseAuthorityActionMapper.delete(queryWrapper);
+    }
+
+    @Override
+    public BaseAuthority saveOrUpdateAuthority(Long resourceId, ResourceType resourceType) {
+        BaseAuthority baseAuthority = getAuthority(resourceId, resourceType);
+        String authority = null;
+        if (baseAuthority == null) {
+            baseAuthority = new BaseAuthority();
+        }
+        if (ResourceType.MENU.equals(resourceType)) {
+            BaseMenu menu = baseMenuService.getById(resourceId);
+            authority = BaseConstants.AUTHORITY_PREFIX_MENU + menu.getMenuCode();
+            baseAuthority.setMenuId(resourceId);
+            baseAuthority.setStatus(menu.getStatus());
+        }
+
+        if (authority == null) {
+            return null;
+        }
+        // 设置权限标识
+        baseAuthority.setAuthority(authority);
+        if (baseAuthority.getAuthorityId() == null) {
+            baseAuthority.setCreateTime(new Date());
+            baseAuthority.setUpdateTime(baseAuthority.getCreateTime());
+            // 新增权限
+            this.save(baseAuthority);
+        } else {
+            baseAuthority.setUpdateTime(new Date());
+            this.updateById(baseAuthority);
+        }
+        return baseAuthority;
     }
 }

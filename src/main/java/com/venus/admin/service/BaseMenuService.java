@@ -15,4 +15,18 @@ public interface BaseMenuService extends IService<BaseMenu> {
      * @param menuId
      */
     void deleteMenu(Long menuId);
+
+    /**
+     * 添加菜单资源
+     * @param baseMenu
+     * @return
+     */
+    BaseMenu addMenu(BaseMenu baseMenu);
+
+    /**
+     * 检查菜单编码是否存在
+     * @param menuCode
+     * @return
+     */
+    Boolean isExist(String menuCode);
 }
