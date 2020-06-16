@@ -14,12 +14,14 @@ import com.venus.admin.mapper.BaseAuthorityUserMapper;
 import com.venus.admin.model.AuthorityMenu;
 import com.venus.admin.model.entity.*;
 import com.venus.admin.security.VenusAuthority;
+import com.venus.admin.service.BaseActionService;
 import com.venus.admin.service.BaseAuthorityService;
 import com.venus.admin.service.BaseMenuService;
 import com.venus.admin.service.BaseRoleService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.Date;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
  * @Version 1.0
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class BaseAuthorityServiceImpl extends ServiceImpl<BaseAuthorityMapper, BaseAuthority> implements BaseAuthorityService {
 
     @Autowired
@@ -52,6 +55,9 @@ public class BaseAuthorityServiceImpl extends ServiceImpl<BaseAuthorityMapper, B
 
     @Autowired
     private BaseMenuService baseMenuService;
+
+    @Autowired
+    private BaseActionService baseActionService;
 
     @Override
     public List<AuthorityMenu> findAuthorityMenuByUser(Long userId, Boolean root) {
@@ -212,6 +218,13 @@ public class BaseAuthorityServiceImpl extends ServiceImpl<BaseAuthorityMapper, B
             authority = BaseConstants.AUTHORITY_PREFIX_MENU + menu.getMenuCode();
             baseAuthority.setMenuId(resourceId);
             baseAuthority.setStatus(menu.getStatus());
+        }
+
+        if (ResourceType.ACTION.equals(resourceType)) {
+            BaseAction baseAction = baseActionService.getAction(resourceId);
+            authority = BaseConstants.AUTHORITY_PREFIX_ACTION + baseAction.getActionCode();
+            baseAuthority.setActionId(resourceId);
+            baseAuthority.setStatus(baseAction.getStatus());
         }
 
         if (authority == null) {

@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -13,8 +14,9 @@ import java.util.Date;
  * @Version 1.0
  */
 @Data
-public class BaseMenuVO {
+public class BaseMenuVO implements Serializable {
 
+    private static final long serialVersionUID = -2715089835184077700L;
     /**
      * 菜单ID
      */

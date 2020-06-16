@@ -34,4 +34,18 @@ public interface BaseActionService extends IService<BaseAction> {
      * @return
      */
     List<BaseAction> findListByMenuId(Long menuId);
+
+    /**
+     * 添加功能
+     * @param baseAction
+     * @return
+     */
+    BaseAction addAction(BaseAction baseAction);
+
+    /**
+     * 判断actionCode是否存在
+     * @param actionCode
+     * @return
+     */
+    boolean isExist(String actionCode);
 }
