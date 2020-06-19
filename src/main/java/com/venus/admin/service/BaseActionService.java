@@ -26,6 +26,11 @@ public interface BaseActionService extends IService<BaseAction> {
      */
     void removeAction(Long actionId);
 
+    /**
+     * 获取功能
+     * @param actionId
+     * @return
+     */
     BaseAction getAction(Long actionId);
 
     /**
@@ -48,4 +53,10 @@ public interface BaseActionService extends IService<BaseAction> {
      * @return
      */
     boolean isExist(String actionCode);
+
+    /**
+     * 修改功能
+     * @param action
+     */
+    BaseAction updateAction(BaseAction action);
 }

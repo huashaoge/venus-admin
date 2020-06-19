@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -32,5 +33,19 @@ public class ActionController {
             actionId = result.getActionId();
         }
         return ResultBody.success().data(actionId);
+    }
+
+    @PostMapping("/action/delete")
+    public ResultBody deleteAction(@RequestParam("actionId") Long actionId){
+        baseActionService.removeAction(actionId);
+        return ResultBody.success();
+    }
+
+    @PostMapping("/action/update")
+    public ResultBody updateAction(@RequestBody @Validated BaseActionVO baseActionVO) {
+        BaseAction action = new BaseAction();
+        BeanUtils.copyProperties(baseActionVO,action);
+        baseActionService.updateAction(action);
+        return ResultBody.success();
     }
 }

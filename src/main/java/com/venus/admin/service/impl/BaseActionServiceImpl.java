@@ -112,4 +112,27 @@ public class BaseActionServiceImpl extends ServiceImpl<BaseActionMapper, BaseAct
         int count = baseActionMapper.selectCount(queryWrapper);
         return count > 0 ? true : false;
     }
+
+    @Override
+    public BaseAction updateAction(BaseAction action) {
+        BaseAction saved = getAction(action.getActionId());
+        if (saved == null) {
+            throw new VenusAlertException(String.format("%s信息不存在", action.getActionId()));
+        }
+        if (!saved.getActionCode().equals(action.getActionCode())) {
+            if (isExist(action.getActionCode())) {
+                throw new VenusAlertException(String.format("%s编码已存在!", action.getActionCode()));
+            }
+        }
+        if (action.getMenuId() == null) {
+            action.setMenuId(0L);
+        }
+        if (action.getPriority() == null) {
+            action.setPriority(0);
+        }
+        action.setUpdateTime(new Date());
+        baseActionMapper.updateById(action);
+        baseAuthorityService.saveOrUpdateAuthority(action.getActionId(), ResourceType.ACTION);
+        return action;
+    }
 }
