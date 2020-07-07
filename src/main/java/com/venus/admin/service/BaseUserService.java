@@ -1,8 +1,12 @@
 package com.venus.admin.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.venus.admin.common.model.PageParams;
 import com.venus.admin.model.UserAccount;
 import com.venus.admin.model.entity.BaseUser;
+
+import java.util.List;
 
 /**
  * @Author: tcg
@@ -19,6 +23,36 @@ public interface BaseUserService extends IService<BaseUser> {
      */
     UserAccount login(String account);
 
+    /**
+     * 获取登录账户信息
+     * @param userId
+     * @return
+     */
     UserAccount getUserAccount(Long userId);
 
+    /**
+     * 查询列表
+     * @return
+     */
+    List<BaseUser> findAllList();
+
+    /**
+     * 分页查询
+     * @param pageParams
+     * @return
+     */
+    IPage<BaseUser> findListPage(PageParams pageParams);
+
+    /**
+     * 根据登录名查询系统用户信息
+     * @param username
+     * @return
+     */
+    BaseUser getUserByUsername(String username);
+
+    /**
+     * 添加用户信息
+     * @param user
+     */
+    void addUser(BaseUser user);
 }

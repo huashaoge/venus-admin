@@ -19,4 +19,25 @@ public interface BaseAccountService extends IService<BaseAccount> {
      */
     BaseAccount getAccount(String account, String accountType);
 
+    /**
+     * 查找账号是否存在
+     * @param account
+     * @param accountType
+     * @param domain
+     * @return
+     */
+    Boolean isExist(String account, String accountType, String domain);
+
+    /**
+     * 注册账号
+     * @param userId
+     * @param account
+     * @param password
+     * @param accountType
+     * @param status
+     * @param domain
+     * @param registerIp
+     * @return
+     */
+    BaseAccount register(Long userId, String account, String password, String accountType, Integer status, String domain, String registerIp);
 }

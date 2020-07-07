@@ -6,6 +6,7 @@ import com.venus.admin.model.AuthorityMenu;
 import com.venus.admin.model.entity.BaseAuthority;
 import com.venus.admin.security.VenusAuthority;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -80,4 +81,12 @@ public interface BaseAuthorityService extends IService<BaseAuthority> {
      * @return
      */
     BaseAuthority saveOrUpdateAuthority(Long resourceId, ResourceType resourceType);
+
+    /**
+     * 角色授权
+     * @param roleId
+     * @param expireTime
+     * @param authorityIds
+     */
+    void addAuthorityRole(Long roleId, Date expireTime, String... authorityIds);
 }

@@ -12,4 +12,6 @@ public class BaseConstants {
     public final static String AUTHORITY_PREFIX_MENU = "MENU_";
     public final static String AUTHORITY_PREFIX_ROLE = "ROLE_";
     public final static String AUTHORITY_PREFIX_ACTION = "ACTION_";
+    public final static String ACCOUNT_TYPE_USERNAME = "username";
+    public static final String ACCOUNT_DOMAIN_ADMIN = "@admin.com";
 }

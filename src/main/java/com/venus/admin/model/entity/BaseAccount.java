@@ -56,11 +56,18 @@ public class BaseAccount extends AbstractEntity{
      */
     private Integer status;
 
-    public BaseAccount(Long userId, String account, String password, String accountType, String registerIp) {
+
+    /**
+     * 账号域
+     */
+    private String domain;
+
+    public BaseAccount(Long userId, String account, String password, String accountType, String domain, String registerIp) {
         this.userId = userId;
         this.account = account;
         this.password = password;
         this.accountType = accountType;
+        this.domain = domain;
         this.registerIp = registerIp;
     }
 }

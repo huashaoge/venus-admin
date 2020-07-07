@@ -23,10 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -243,4 +240,26 @@ public class BaseAuthorityServiceImpl extends ServiceImpl<BaseAuthorityMapper, B
         }
         return baseAuthority;
     }
+
+    @Override
+    public void addAuthorityRole(Long roleId, Date expireTime, String... authorityIds) {
+        if (roleId == null) {
+            return;
+        }
+        // 清空角色授权
+        QueryWrapper<BaseAuthorityRole> roleQueryWrapper = new QueryWrapper();
+        roleQueryWrapper.lambda().eq(BaseAuthorityRole::getRoleId, roleId);
+        baseAuthorityRoleMapper.delete(roleQueryWrapper);
+        BaseAuthorityRole authority = null;
+        if (authorityIds != null && authorityIds.length > 0) {
+            for (String id : authorityIds) {
+                authority = new BaseAuthorityRole();
+                authority.setAuthorityId(Long.parseLong(id));
+                authority.setRoleId(roleId);
+                authority.setExpireTime(expireTime);
+                baseAuthorityRoleMapper.insert(authority);
+            }
+        }
+    }
+
 }

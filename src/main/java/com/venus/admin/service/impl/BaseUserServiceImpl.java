@@ -1,8 +1,14 @@
 package com.venus.admin.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.venus.admin.common.constants.BaseConstants;
+import com.venus.admin.common.model.PageParams;
+import com.venus.admin.exception.VenusAlertException;
 import com.venus.admin.mapper.BaseUserMapper;
 import com.venus.admin.model.UserAccount;
 import com.venus.admin.model.entity.BaseAccount;
@@ -20,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +47,9 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUser> i
 
     @Autowired
     private BaseAuthorityService baseAuthorityService;
+
+    @Autowired
+    private BaseUserMapper baseUserMapper;
 
     /**
      * 默认超级管理员账号
@@ -93,6 +103,45 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUser> i
         userAccount.setAuthorities(authorities);
         userAccount.setRoles(roles);
         return userAccount;
+    }
+
+    @Override
+    public List<BaseUser> findAllList() {
+        List<BaseUser> list = baseUserMapper.selectList(new QueryWrapper<>());
+        return list;
+    }
+
+    @Override
+    public IPage<BaseUser> findListPage(PageParams pageParams) {
+        BaseUser query = pageParams.mapToObject(BaseUser.class);
+        QueryWrapper<BaseUser> queryWrapper = new QueryWrapper();
+        queryWrapper.lambda()
+                .eq(ObjectUtils.isNotEmpty(query.getUserId()), BaseUser::getUserId, query.getUserId())
+                .eq(ObjectUtils.isNotEmpty(query.getUserType()), BaseUser::getUserType, query.getUserType())
+                .like(ObjectUtils.isNotEmpty(query.getUserName()), BaseUser::getUserName, query.getUserName())
+                .like(ObjectUtils.isNotEmpty(query.getMobile()), BaseUser::getMobile, query.getMobile());
+        queryWrapper.orderByDesc("create_time");
+        return baseUserMapper.selectPage(pageParams, queryWrapper);
+    }
+
+    @Override
+    public BaseUser getUserByUsername(String username) {
+        QueryWrapper<BaseUser> queryWrapper = new QueryWrapper();
+        queryWrapper.lambda()
+                .eq(BaseUser::getUserName, username);
+        BaseUser saved = baseUserMapper.selectOne(queryWrapper);
+        return saved;
+    }
+
+    @Override
+    public void addUser(BaseUser user) {
+        if (getUserByUsername(user.getUserName()) != null){
+            throw new VenusAlertException("用户名: " + user.getUserName() + " 已存在!");
+        }
+        user.setCreateTime(new Date());
+        user.setUpdateTime(user.getCreateTime());
+        baseUserMapper.insert(user);
+        baseAccountService.register(user.getUserId(), user.getUserName(),user.getPassword(), BaseConstants.ACCOUNT_TYPE_USERNAME, user.getStatus(), BaseConstants.ACCOUNT_DOMAIN_ADMIN, null);
     }
 
 

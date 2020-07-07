@@ -1,30 +1,19 @@
-package com.venus.admin.model.entity;
+package com.venus.admin.model.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.codehaus.jackson.annotate.JsonIgnore;
+
+import java.io.Serializable;
 
 /**
  * @Author: tcg
- * @Date: 2020/4/29 10:13
+ * @Date: 2020/7/7 15:31
  * @Version 1.0
  */
 @Data
-@EqualsAndHashCode
-@NoArgsConstructor
-@TableName("base_user")
-public class BaseUser extends AbstractEntity{
-    private static final long serialVersionUID = 2261974296021917378L;
-
+public class BaseUserVO implements Serializable {
     /**
      * 用户ID
      */
-    @TableId(type = IdType.ASSIGN_ID)
     private Long userId;
 
     /**
@@ -61,11 +50,10 @@ public class BaseUser extends AbstractEntity{
      * 描述
      */
     private String userDesc;
+
     /**
      * 密码
      */
-    @JsonIgnore
-    @TableField(exist = false)
     private String password;
 
     /**
