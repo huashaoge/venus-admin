@@ -55,4 +55,24 @@ public interface BaseUserService extends IService<BaseUser> {
      * @param user
      */
     void addUser(BaseUser user);
+
+    /**
+     * 更新系统用户
+     * @param user
+     */
+    void updateUser(BaseUser user);
+
+    /**
+     * 根据ID 获取用户
+     * @param userId
+     * @return
+     */
+    BaseUser getUserById(Long userId);
+
+    /**
+     * 更新密码
+     * @param userId
+     * @param password
+     */
+    void updatePassword(Long userId, String password);
 }

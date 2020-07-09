@@ -144,5 +144,27 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUser> i
         baseAccountService.register(user.getUserId(), user.getUserName(),user.getPassword(), BaseConstants.ACCOUNT_TYPE_USERNAME, user.getStatus(), BaseConstants.ACCOUNT_DOMAIN_ADMIN, null);
     }
 
+    @Override
+    public void updateUser(BaseUser user) {
+        if (user ==null || user.getUserId() == null) {
+            return;
+        }
+        if (user.getStatus() !=null) {
+            baseAccountService.updateStatusByUserId(user.getUserId(), BaseConstants.ACCOUNT_DOMAIN_ADMIN, user.getStatus());
+        }
+        user.setUpdateTime(new Date());
+        baseUserMapper.updateById(user);
+    }
+
+    @Override
+    public BaseUser getUserById(Long userId) {
+        return baseUserMapper.selectById(userId);
+    }
+
+    @Override
+    public void updatePassword(Long userId, String password) {
+        baseAccountService.updatePasswordByUserId(userId,BaseConstants.ACCOUNT_DOMAIN_ADMIN,password);
+    }
+
 
 }

@@ -40,4 +40,22 @@ public interface BaseAccountService extends IService<BaseAccount> {
      * @return
      */
     BaseAccount register(Long userId, String account, String password, String accountType, Integer status, String domain, String registerIp);
+
+    /**
+     * 更新用户状态
+     * @param userId
+     * @param domain
+     * @param status
+     * @return
+     */
+    int updateStatusByUserId(Long userId, String domain, Integer status);
+
+    /**
+     * 重置用户密码
+     * @param userId
+     * @param domain
+     * @param password
+     * @return
+     */
+    int updatePasswordByUserId(Long userId, String domain, String password);
 }

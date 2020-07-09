@@ -89,4 +89,20 @@ public interface BaseAuthorityService extends IService<BaseAuthority> {
      * @param authorityIds
      */
     void addAuthorityRole(Long roleId, Date expireTime, String... authorityIds);
+
+    /**
+     * 权限是否被多个角色授权
+     * @param authorityId
+     * @param roleIds
+     * @return
+     */
+    Boolean isGrantedByRoleIds(String authorityId, Long... roleIds);
+
+    /**
+     * 用户授权
+     * @param userId
+     * @param expireTime
+     * @param authorityIds
+     */
+    void addAuthorityUser(Long userId, Date expireTime, String... authorityIds);
 }

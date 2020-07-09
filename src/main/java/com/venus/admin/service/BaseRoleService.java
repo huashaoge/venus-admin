@@ -89,4 +89,30 @@ public interface BaseRoleService extends IService<BaseRole> {
      * @param userIds
      */
     void saveRoleUsers(Long roleId, String... userIds);
+
+    /**
+     * 查询列表
+     * @return
+     */
+    List<BaseRole> findAllList();
+
+    /**
+     * 根据用户ID删除角色关联
+     * @param userId
+     */
+    void removeUserRoles(Long userId);
+
+    /**
+     * 用户添加角色
+     * @param userId
+     * @param roles
+     */
+    void saveUserRoles(Long userId, String... roles);
+
+    /**
+     * 获取用户角色列表
+     * @param userId
+     * @return
+     */
+    List<Long> getUserRoleIds(Long userId);
 }

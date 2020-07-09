@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import com.venus.admin.common.constants.BaseConstants;
 import com.venus.admin.common.constants.ResourceType;
 import com.venus.admin.exception.VenusAlertException;
+import com.venus.admin.exception.VenusException;
 import com.venus.admin.mapper.BaseAuthorityActionMapper;
 import com.venus.admin.mapper.BaseAuthorityMapper;
 import com.venus.admin.mapper.BaseAuthorityRoleMapper;
@@ -14,10 +15,7 @@ import com.venus.admin.mapper.BaseAuthorityUserMapper;
 import com.venus.admin.model.AuthorityMenu;
 import com.venus.admin.model.entity.*;
 import com.venus.admin.security.VenusAuthority;
-import com.venus.admin.service.BaseActionService;
-import com.venus.admin.service.BaseAuthorityService;
-import com.venus.admin.service.BaseMenuService;
-import com.venus.admin.service.BaseRoleService;
+import com.venus.admin.service.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +53,11 @@ public class BaseAuthorityServiceImpl extends ServiceImpl<BaseAuthorityMapper, B
 
     @Autowired
     private BaseActionService baseActionService;
+
+    @Autowired
+    private BaseUserService baseUserService;
+
+    public final static String ROOT = "admin";
 
     @Override
     public List<AuthorityMenu> findAuthorityMenuByUser(Long userId, Boolean root) {
@@ -258,6 +261,56 @@ public class BaseAuthorityServiceImpl extends ServiceImpl<BaseAuthorityMapper, B
                 authority.setRoleId(roleId);
                 authority.setExpireTime(expireTime);
                 baseAuthorityRoleMapper.insert(authority);
+            }
+        }
+    }
+
+    @Override
+    public Boolean isGrantedByRoleIds(String authorityId, Long... roleIds) {
+        if (roleIds == null || roleIds.length == 0) {
+            throw new VenusException("roleIds is empty");
+        }
+        QueryWrapper<BaseAuthorityRole> wrapper = new QueryWrapper();
+        wrapper.lambda().in(BaseAuthorityRole::getRoleId, roleIds)
+                .eq(BaseAuthorityRole::getAuthorityId, authorityId);
+        int count = baseAuthorityRoleMapper.selectCount(wrapper);
+        return count > 0;
+    }
+
+    @Override
+    public void addAuthorityUser(Long userId, Date expireTime, String... authorityIds) {
+        if (userId == null) {
+            return;
+        }
+        BaseUser user = baseUserService.getUserById(userId);
+        if (user == null) {
+            return;
+        }
+        if (ROOT.equals(user.getUserName())) {
+            throw new VenusAlertException("默认用户无需授权!");
+        }
+        // 获取用户角色列表
+        List<Long> roleIds = baseRoleService.getUserRoleIds(userId);
+        // 清空用户已授权
+        QueryWrapper<BaseAuthorityUser> wrapper = new QueryWrapper();
+        wrapper.lambda().eq(BaseAuthorityUser::getUserId, userId);
+        baseAuthorityUserMapper.delete(wrapper);
+        BaseAuthorityUser authority = null;
+        if (authorityIds != null && authorityIds.length > 0) {
+            for (String id : authorityIds) {
+                if (roleIds != null && roleIds.size() > 0) {
+                    // 防止重复授权
+                    if (isGrantedByRoleIds(id, roleIds.toArray(new Long[roleIds.size()]))) {
+                        continue;
+                    }
+                }
+                authority = new BaseAuthorityUser();
+                authority.setAuthorityId(Long.parseLong(id));
+                authority.setUserId(userId);
+                authority.setExpireTime(expireTime);
+                authority.setCreateTime(new Date());
+                authority.setUpdateTime(authority.getCreateTime());
+                baseAuthorityUserMapper.insert(authority);
             }
         }
     }

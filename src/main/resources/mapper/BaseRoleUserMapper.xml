@@ -20,4 +20,13 @@
         INNER JOIN base_role AS r ON ru.role_id = r.role_id
         WHERE ru.user_id = #{userId} and status = 1
     </select>
+
+    <select id="selectRoleUserIdList" resultType="java.lang.Long">
+        SELECT
+        base_role.role_id
+        FROM
+        base_role_user
+        INNER JOIN base_role ON base_role_user.role_id = base_role.role_id
+        WHERE user_id = #{userId} AND status = 1
+    </select>
 </mapper>

@@ -11,7 +11,9 @@ import com.venus.admin.mapper.BaseRoleMapper;
 import com.venus.admin.mapper.BaseRoleUserMapper;
 import com.venus.admin.model.entity.BaseRole;
 import com.venus.admin.model.entity.BaseRoleUser;
+import com.venus.admin.model.entity.BaseUser;
 import com.venus.admin.service.BaseRoleService;
+import com.venus.admin.service.BaseUserService;
 import com.venus.admin.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,8 +33,14 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRole> i
 
     @Autowired
     private BaseRoleMapper baseRoleMapper;
+
     @Autowired
     private BaseRoleUserMapper baseRoleUserMapper;
+
+    @Autowired
+    private BaseUserService baseUserService;
+
+    public final static String ROOT = "admin";
 
     @Override
     public List<BaseRole> getUserRoles(Long userId) {
@@ -152,5 +160,48 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRole> i
                 baseRoleUserMapper.insert(roleUser);
             }
         }
+    }
+
+    @Override
+    public List<BaseRole> findAllList() {
+        List<BaseRole> list = baseRoleMapper.selectList(new QueryWrapper<>());
+        return list;
+    }
+
+    @Override
+    public void removeUserRoles(Long userId) {
+        QueryWrapper<BaseRoleUser> queryWrapper = new QueryWrapper();
+        queryWrapper.lambda().eq(BaseRoleUser::getUserId, userId);
+        baseRoleUserMapper.delete(queryWrapper);
+    }
+
+    @Override
+    public void saveUserRoles(Long userId, String... roles) {
+        if (userId == null || roles == null) {
+            return;
+        }
+        BaseUser user = baseUserService.getUserById(userId);
+        if (user == null) {
+            return;
+        }
+        if (ROOT.equals(user.getUserName())) {
+            throw new VenusAlertException("默认用户无需分配!");
+        }
+        // 清空再添加
+        removeUserRoles(userId);
+        if (roles.length > 0) {
+            // 可优化成批量插入
+            for (String roleId : roles) {
+                BaseRoleUser roleUser = new BaseRoleUser();
+                roleUser.setUserId(userId);
+                roleUser.setRoleId(Long.parseLong(roleId));
+                baseRoleUserMapper.insert(roleUser);
+            }
+        }
+    }
+
+    @Override
+    public List<Long> getUserRoleIds(Long userId) {
+        return baseRoleUserMapper.selectRoleUserIdList(userId);
     }
 }

@@ -72,4 +72,9 @@ public class RoleController {
         return ResultBody.success();
     }
 
+    @GetMapping("/role/all")
+    public ResultBody<List<BaseRole>> getRoleAllList() {
+        return ResultBody.success().data(baseRoleService.findAllList());
+    }
+
 }
